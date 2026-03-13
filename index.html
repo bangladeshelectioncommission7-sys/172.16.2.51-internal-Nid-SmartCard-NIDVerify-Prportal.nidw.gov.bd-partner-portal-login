@@ -185,25 +185,14 @@
     const COOLDOWN_TIME = 30000;
 
     async function sendOtpByApi(mobile, otp) {
-  const response = await fetch("/api/send-otp", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      phone: mobile,
-      otp: otp
-    })
-  });
-
-  const data = await response.json();
-
-  if (!response.ok || !data.success) {
-    throw new Error(data.message || "OTP পাঠানো যায়নি");
-  }
-
-  return data;
-}
+      const smsText = `আপনার OTP কোড: ${otp}`;
+      const payloads = [
+        { to: mobile, message: smsText },
+        { mobile: mobile, message: smsText },
+        { phone: mobile, message: smsText },
+        { recipient: mobile, message: smsText },
+        { to: mobile, sms: smsText }
+      ];
 
       let lastError = null;
       for (const payload of payloads) {
