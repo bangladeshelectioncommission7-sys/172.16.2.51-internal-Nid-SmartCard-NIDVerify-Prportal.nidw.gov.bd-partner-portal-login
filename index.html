@@ -118,7 +118,6 @@
   <script>
     const { jsPDF } = window.jspdf;
     let searchCount = 0;
-    const SMS_API_URL = "https://sms.one9.one/api/v3/585|uHouJiWAUU0HDemochatgpt4jPVeFfYIolJB79a3d8b9";
     let generatedOtp = "";
     let otpMobile = "";
     let otpExpiresAt = 0;
@@ -186,14 +185,25 @@
     const COOLDOWN_TIME = 30000;
 
     async function sendOtpByApi(mobile, otp) {
-      const smsText = `আপনার OTP কোড: ${otp}`;
-      const payloads = [
-        { to: mobile, message: smsText },
-        { mobile: mobile, message: smsText },
-        { phone: mobile, message: smsText },
-        { recipient: mobile, message: smsText },
-        { to: mobile, sms: smsText }
-      ];
+  const response = await fetch("/api/send-otp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      phone: mobile,
+      otp: otp
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "OTP পাঠানো যায়নি");
+  }
+
+  return data;
+}
 
       let lastError = null;
       for (const payload of payloads) {
