@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OTP Verification Portal</title>
+  <style>
+    :root{
+      --bg1:#eaf4ff;
+      --bg2:#f7fbff;
+      --card:#ffffff;
+      --line:#dbe7f3;
+      --text:#10233d;
+      --muted:#5b6b7d;
+      --primary:#0b63b6;
+      --primary-dark:#084d8d;
+      --success:#1e8e3e;
+      --danger:#c62828;
+      --warning:#b26a00;
+      --shadow:0 16px 44px rgba(11, 54, 107, .12);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      min-height:100vh;
+    }
+    .wrap{
+      max-width:1120px;
+      margin:0 auto;
+      padding:24px 16px 48px;
+    }
+    .hero{
+      display:grid;
+      grid-template-columns:1.2fr .9fr;
+      gap:22px;
+      align-items:stretch;
+      margin-top:8px;
+    }
+    .hero-card,.panel{
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(219,231,243,.8);
+      box-shadow:var(--shadow);
+      border-radius:28px;
+      backdrop-filter:blur(8px);
+    }
+    .hero-card{
+      padding:34px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero-card:before,.hero-card:after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      background:rgba(11,99,182,.08);
+    }
+    .hero-card:before{width:220px;height:220px;right:-70px;top:-60px}
+    .hero-card:after{width:180px;height:180px;left:-60px;bottom:-70px}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      border-radius:999px;
+      border:1px solid #d7e8f7;
+      color:var(--primary-dark);
+      background:#f4faff;
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    h1{
+      margin:18px 0 12px;
+      font-size:42px;
+      line-height:1.1;
+    }
+    .lead{
+      margin:0;
+      font-size:17px;
+      line-height:1.7;
+      color:var(--muted);
+      max-width:650px;
+    }
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      margin-top:26px;
+    }
+    .stat{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px;
+    }
+    .stat b{
+      display:block;
+      font-size:28px;
+      margin-bottom:6px;
+    }
+    .stat span{color:var(--muted);font-size:14px}
+    .panel{
+      padding:24px;
+    }
+    .panel h2{
+      margin:4px 0 8px;
+      font-size:26px;
+    }
+    .panel p{
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .field{
+      margin-bottom:14px;
+    }
+    label{
+      display:block;
+      font-size:14px;
+      font-weight:700;
+      margin:0 0 8px;
+    }
+    input{
+      width:100%;
+      height:54px;
+      border:1px solid #cfdbe7;
+      border-radius:16px;
+      padding:0 16px;
+      font-size:16px;
+      outline:none;
+      background:#fff;
+      transition:.2s border-color,.2s box-shadow;
+    }
+    input:focus{
+      border-color:#87b8e8;
+      box-shadow:0 0 0 4px rgba(11,99,182,.10);
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .btns{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    button{
+      border:none;
+      height:52px;
+      padding:0 20px;
+      border-radius:16px;
+      cursor:pointer;
+      font-size:15px;
+      font-weight:800;
+      transition:transform .08s ease,opacity .2s ease,background .2s ease;
+    }
+    button:active{transform:translateY(1px)}
+    .primary{background:var(--primary);color:#fff}
+    .primary:hover{background:var(--primary-dark)}
+    .secondary{background:#edf6ff;color:var(--primary-dark);border:1px solid #d4e7fb}
+    .ghost{background:#fff;border:1px solid #d8e3ef;color:var(--text)}
+    .status{
+      margin-top:16px;
+      border-radius:16px;
+      padding:14px 16px;
+      font-size:14px;
+      display:none;
+    }
+    .status.show{display:block}
+    .status.info{background:#eef6ff;color:#084d8d;border:1px solid #d7e8fb}
+    .status.success{background:#ecf8ef;color:var(--success);border:1px solid #cce8d4}
+    .status.error{background:#fff0f0;color:var(--danger);border:1px solid #f2caca}
+    .status.warn{background:#fff7ea;color:var(--warning);border:1px solid #f5dfae}
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+      margin-top:22px;
+    }
+    .mini{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:0 12px 30px rgba(15,35,65,.06);
+    }
+    .mini h3{
+      margin:0 0 8px;
+      font-size:18px;
+    }
+    .mini p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:14px;
+    }
+    .footer-note{
+      margin-top:16px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+    .otp-box{
+      letter-spacing:5px;
+      font-weight:800;
+      text-align:center;
+      font-size:24px;
+    }
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr}
+      .cards{grid-template-columns:1fr}
+    }
+    @media (max-width: 700px){
+      h1{font-size:31px}
+      .stats,.row{grid-template-columns:1fr}
+      .hero-card,.panel{border-radius:22px}
+      .hero-card{padding:22px}
+      .panel{padding:18px}
+      .btns button{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="badge">✔ Secure OTP Verification</div>
+        <h1>বাংলাদেশি মোবাইল নাম্বারে OTP পাঠানো ও যাচাই সিস্টেম</h1>
+        <p class="lead">এই Vercel-ready ওয়েবসাইটে নাম্বার দিলে OTP request যাবে, তারপর একই নাম্বারে পাওয়া OTP দিয়ে verification করা যাবে। Frontend + backend structure এমনভাবে রাখা হয়েছে যাতে GitHub ও Vercel-এ সহজে চালানো যায়।</p>
+        <div class="stats">
+          <div class="stat"><b>6 Digit</b><span>র‍্যান্ডম OTP</span></div>
+          <div class="stat"><b>5 Min</b><span>এক্সপায়ারি সময়</span></div>
+          <div class="stat"><b>30 Sec</b><span>রিসেন্ড কুলডাউন</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>OTP Portal</h2>
+        <p>প্রথমে মোবাইল নাম্বার দিন, তারপর OTP পাঠান। SMS এসে গেলে নিচে OTP লিখে verify করুন।</p>
+
+        <div class="field">
+          <label for="mobile">মোবাইল নাম্বার</label>
+          <input id="mobile" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX অথবা 8801XXXXXXXXX">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="otp">OTP কোড</label>
+            <input id="otp" class="otp-box" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="------">
+          </div>
+          <div class="field">
+            <label for="name">নাম (ঐচ্ছিক)</label>
+            <input id="name" type="text" placeholder="যেমন: Shajib Khan">
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="sendBtn">OTP পাঠান</button>
+          <button class="secondary" id="verifyBtn">OTP যাচাই করুন</button>
+          <button class="ghost" id="clearBtn">রিসেট</button>
+        </div>
+
+        <div id="status" class="status info"></div>
+        <div class="footer-note">নোট: `SMS_API_URL` environment variable সেট করা না থাকলে সিস্টেম demo mode-এ চলবে এবং screen-এ OTP preview দেখাবে।</div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <div class="mini">
+        <h3>GitHub Ready</h3>
+        <p>এই project structure repo-তে push করলেই deploy-ready থাকবে।</p>
+      </div>
+      <div class="mini">
+        <h3>Vercel Ready</h3>
+        <p>`api/send-otp.js` serverless function দিয়ে SMS API secure ভাবে call করা হবে।</p>
+      </div>
+      <div class="mini">
+        <h3>Single Download</h3>
+        <p>পুরো project zip হিসেবে ডাউনলোড করে upload করলেই ব্যবহার শুরু করতে পারবেন।</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const mobileEl = $('mobile');
+    const otpEl = $('otp');
+    const nameEl = $('name');
+    const statusEl = $('status');
+    const sendBtn = $('sendBtn');
+    const verifyBtn = $('verifyBtn');
+    const clearBtn = $('clearBtn');
+
+    let cooldownTimer = null;
+    let cooldownLeft = 0;
+
+    function showStatus(message, type = 'info') {
+      statusEl.className = `status show ${type}`;
+      statusEl.innerHTML = message;
+    }
+
+    function normalizeMobile(input) {
+      const digits = String(input || '').replace(/\D/g, '');
+      if (/^8801\d{9}$/.test(digits)) return digits;
+      if (/^01\d{9}$/.test(digits)) return '88' + digits;
+      if (/^1\d{9}$/.test(digits)) return '880' + digits;
+      return null;
+    }
+
+    function setButtonCooldown(seconds) {
+      cooldownLeft = seconds;
+      sendBtn.disabled = true;
+      sendBtn.textContent = `আবার পাঠাতে ${cooldownLeft}s`;
+
+      clearInterval(cooldownTimer);
+      cooldownTimer = setInterval(() => {
+        cooldownLeft -= 1;
+        if (cooldownLeft <= 0) {
+          clearInterval(cooldownTimer);
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'OTP পাঠান';
+          return;
+        }
+        sendBtn.textContent = `আবার পাঠাতে ${cooldownLeft}s`;
+      }, 1000);
+    }
+
+    async function postData(payload) {
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    sendBtn.addEventListener('click', async () => {
+      const mobile = normalizeMobile(mobileEl.value);
+      if (!mobile) {
+        showStatus('সঠিক বাংলাদেশি মোবাইল নাম্বার দিন।', 'error');
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'পাঠানো হচ্ছে...';
+      showStatus('OTP পাঠানোর অনুরোধ যাচ্ছে...', 'info');
+
+      try {
+        const { ok, data } = await postData({
+          action: 'send',
+          mobile,
+          name: nameEl.value.trim()
+        });
+
+        if (!ok) {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'OTP পাঠান';
+          showStatus(data.message || 'OTP পাঠানো যায়নি।', 'error');
+          return;
+        }
+
+        if (data.demoOtp) {
+          showStatus(`Demo mode: OTP পাঠানো হয়েছে। পরীক্ষার জন্য OTP হলো <b>${data.demoOtp}</b>`, 'warn');
+        } else {
+          showStatus('OTP সফলভাবে পাঠানো হয়েছে। আপনার SMS চেক করুন।', 'success');
+        }
+
+        setButtonCooldown(Number(data.cooldown || 30));
+      } catch (error) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'OTP পাঠান';
+        showStatus('Server error হয়েছে। পরে আবার চেষ্টা করুন।', 'error');
+      }
+    });
+
+    verifyBtn.addEventListener('click', async () => {
+      const mobile = normalizeMobile(mobileEl.value);
+      const otp = otpEl.value.trim();
+
+      if (!mobile) {
+        showStatus('প্রথমে সঠিক মোবাইল নাম্বার দিন।', 'error');
+        return;
+      }
+      if (!/^\d{6}$/.test(otp)) {
+        showStatus('৬ ডিজিট OTP দিন।', 'error');
+        return;
+      }
+
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = 'যাচাই হচ্ছে...';
+
+      try {
+        const { ok, data } = await postData({ action: 'verify', mobile, otp });
+        if (!ok) {
+          showStatus(data.message || 'OTP যাচাই হয়নি।', 'error');
+          return;
+        }
+
+        showStatus('OTP সফলভাবে যাচাই হয়েছে।', 'success');
+      } catch (error) {
+        showStatus('Verification request ব্যর্থ হয়েছে।', 'error');
+      } finally {
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'OTP যাচাই করুন';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      mobileEl.value = '';
+      otpEl.value = '';
+      nameEl.value = '';
+      showStatus('ফর্ম রিসেট করা হয়েছে।', 'info');
+    });
+
+    if ('OTPCredential' in window) {
+      navigator.credentials.get({ otp: { transport: ['sms'] }, signal: AbortSignal.timeout(60000) })
+        .then(otp => {
+          if (otp && otp.code) otpEl.value = otp.code;
+        })
+        .catch(() => {});
+    }
+  </script>
+</body>
+</html>
