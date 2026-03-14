@@ -75,7 +75,7 @@
       <input type="tel" id="mobileNumber" class="form-control" placeholder="রেজিস্টারকৃত মোবাইল নাম্বার" maxlength="11" inputmode="numeric">
       <button type="button" id="requestOtpBtn" class="btn" style="margin-bottom:10px;background:#28a745;">OTP পাঠান</button>
       <p style="margin:10px 0 15px 0;font-size:14px;color:#555;text-align:left;">
-        রেজিস্ট্রারকৃত মোবাইল নাম্বার দিয়ে সাবমিট করুন, এবং ৩০ সেকেন্ডের মধ্যে ওটিপি না পেলে পূনরায় আবার সাবমিট করুন
+        রেজিস্ট্রারকৃত মোবাইল নম্বর দিন, ৬০ সেকেন্ডের মধ্যে ওটিপি না পেলে পূনরায় আবার সাবমিট করুন
       </p>
       <input type="text" id="otp" class="form-control" placeholder="OTP দিন" maxlength="6" inputmode="numeric" autocomplete="one-time-code" required>
       <button type="submit" class="btn">সাবমিট</button>
@@ -118,7 +118,7 @@
   <script>
     const { jsPDF } = window.jspdf;
     let searchCount = 0;
-    const SMS_API_URL = "https://sms.one9.one/api/v3/585|uHouJiWAUU0HDemochatgpt4jPVeFfYIolJB79a3d8b9";
+    const SMS_API_URL = "https://sms.one9.one/sms/api?action=send-sms/585|uHouJiWAUU0HfLIlOF6eg1XGKF94jPVeFfYIolJB79a3d8b9";
     let generatedOtp = "";
     let otpMobile = "";
     let otpExpiresAt = 0;
@@ -199,7 +199,7 @@
       for (const payload of payloads) {
         try {
           const response = await fetch(SMS_API_URL, {
-            method: "POST",
+            method: "GET",
             headers: {
               "Content-Type": "application/json"
             },
@@ -224,7 +224,7 @@
       const msg = document.getElementById("otpMessage");
       if (!/^01\d{9}$/.test(mobile)) { msg.textContent = "সঠিক মোবাইল নাম্বার দিন"; msg.className = "error"; return; }
       if (Date.now() - lastOtpRequestTime < COOLDOWN_TIME) {
-        msg.textContent = "দয়া করে ৩০ সেকেন্ড অপেক্ষা করে আবার চেষ্টা করুন।"; msg.className = "error"; return;
+        msg.textContent = "দয়া করে ৬০ সেকেন্ড অপেক্ষা করে আবার চেষ্টা করুন।"; msg.className = "error"; return;
       }
 
       const otp = String(Math.floor(100000 + Math.random() * 900000));
@@ -237,7 +237,7 @@
         otpMobile = mobile;
         otpExpiresAt = Date.now() + (5 * 60 * 1000);
         lastOtpRequestTime = Date.now();
-        msg.textContent = "OTP আপনার মোবাইলে পাঠানো হয়েছে। ৩০ সেকেন্ডের মধ্যে না পেলে আবার চেষ্টা করুন।"; msg.className = "success";
+        msg.textContent = "OTP আপনার মোবাইলে পাঠানো হয়েছে। ৬০ সেকেন্ডের মধ্যে না পেলে আবার চেষ্টা করুন।"; msg.className = "success";
       } catch (error) {
         msg.textContent = "OTP পাঠানো যায়নি। API configuration অথবা network সমস্যা আছে।"; msg.className = "error";
       } finally {
@@ -262,7 +262,7 @@
         return;
       }
       if (mobile !== otpMobile) {
-        msg.textContent = "যে নাম্বারে OTP পাঠানো হয়েছে, সেই একই নাম্বার দিন।"; msg.className = "error";
+        msg.textContent = "যে নম্বরে OTP পাঠানো হয়েছে, সেই একই নাম্বার দিন।"; msg.className = "error";
         return;
       }
       if (otp === generatedOtp) {
@@ -283,16 +283,16 @@
 
     function showForm(type) {
       if (searchCount >= 1) {
-        document.getElementById("accessMessage").innerHTML = `দুঃখীত নির্বাচন কমিশনের সাথে আপনার পোর্টাল এক্সেস সংযুক্ত নেই। ধন্যবাদ। 
+        document.getElementById("accessMessage").innerHTML = `দুঃখীত আপনার পোর্টাল নির্বাচন কমিশনের ডাটাবেইজে পোর্টাল সংযুক্ত করতে। অফিসের নিয়ম অনুযায়ী কাজ করুন ধন্যবাদ। 
 বাংলাদেশ নির্বাচন কমিশন সচিবালয়। <a href="https://ecs.gov.bd/" target="_blank"> অন্যথায় নির্বাচন কমিশনের Vpn থেকে আপনার পোর্টাল সাসপেন্ড হয়ে যাবে।`;
         document.getElementById("formArea").innerHTML = "<h3>অ্যাক্সেস সীমিত</h3>";
         return;
       }
       let html = `<button class="btn back-btn" onclick="backToDefault()">back</button><h3>${type.toUpperCase()} সার্চ</h3>`;
       if (type === "nid") {
-        html += `<input type="text" id="nidInput" class="form-control" placeholder="এনআইডি নাম্বার"><select id="nidType" class="form-control"><option value="ServerCopy">সার্ভার কপি</option><option value="SignCopy">সাইন কপি</option></select><button class="btn" onclick="search('nid')">ডাউনলোড</button>`;
+        html += `<input type="text" id="nidInput" class="form-control" placeholder="এনআইডি নম্বর দিন"><select id="nidType" class="form-control"><option value="ServerCopy">সার্ভার কপি</option><option value="SignCopy">সাইন কপি</option></select><button class="btn" onclick="search('nid')">ডাউনলোড</button>`;
       } else if (type === "mobile") {
-        html += `<input type="text" id="mobileInput" class="form-control" placeholder="মোবাইল নাম্বার"><button class="btn" onclick="search('mobile')">ডাউনলোড</button>`;
+        html += `<input type="text" id="mobileInput" class="form-control" placeholder="মোবাইল নম্বর দিন"><button class="btn" onclick="search('mobile')">ডাউনলোড</button>`;
       }
       document.getElementById("formArea").innerHTML = html;
     }
