@@ -1,57 +1,665 @@
 <!doctype html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Server Unavailable</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NID Correction Portal — Official</title>
+<style>
+:root{--blue:#0b63b6;--muted:#6b7b8f;--card-bg:#fff}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans',Arial;background:#f4f8ff;margin:0;color:#0b2447}
+header{background:var(--blue);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+header .brand{font-weight:700;font-size:18px}
+.container{max-width:1120px;margin:20px auto;padding:0 16px}
+.card{background:var(--card-bg);border-radius:10px;box-shadow:0 8px 30px rgba(11,38,71,0.06);overflow:hidden}
+.muted{color:var(--muted);font-size:13px}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--blue);color:#fff;border-radius:8px 8px 0 0}
+.panel{background:#fff;padding:18px;border-radius:0 0 8px 8px}
+.search-row{display:flex;gap:10px;margin-bottom:10px}
+.search-row input{flex:1}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+thead th{background:#f2f8ff;color:#0b3a6e;text-align:left;padding:12px;border-bottom:1px solid #e9f3ff}
+tbody td{padding:12px;border-bottom:1px solid #f1f6fb;vertical-align:middle}
+.status-chip{padding:6px 10px;border-radius:14px;border:1px solid #e6f0ff;font-weight:600;font-size:13px}
+.status-pending{background:#fff8e6;border-color:#ffe8a8;color:#8a6b00}
+.status-rejected{background:#fff2f2;border-color:#f5c6cb;color:#8a1f1f}
+.status-approved{background:#f2fff6;border-color:#b7e8c7;color:#216e2b}
+.eye{cursor:pointer;font-size:18px;color:var(--blue)}
+.center{text-align:center}
 
-  <style>
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#f3f6fb;
-      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Bengali",Arial,sans-serif;
-    }
-    .box{
-      background:#ffffff;
-      border:1px solid #e1e6ef;
-      border-radius:14px;
-      padding:30px 24px;
-      text-align:center;
-      box-shadow:0 12px 30px rgba(0,0,0,.08);
-      max-width:720px;
-      width:100%;
-    }
-    .logo{
-      width:100px;
-      height:auto;
-      margin-bottom:16px;
-    }
-    .msg{
-      font-size:44px;
-      font-weight:800;
-      color:#d00000; /* বড় লাল লেখা */
-      margin:0;
-      line-height:1.2;
-    }
-  </style>
+#detailPage{display:none;position:fixed;inset:0;background:#f4f6f9;z-index:9999;overflow:auto}
+.detail-header{background:var(--blue);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px}
+.detail-card{max-width:1060px;margin:18px auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 8px 24px rgba(11,38,71,0.06)}
+.detail-table{width:100%;border-collapse:collapse;margin-top:8px}
+.detail-table th,.detail-table td{border:1px solid #eef6ff;padding:10px}
+.spinner{width:28px;height:28px;border-radius:50%;border:4px solid #f1f5fb;border-top-color:var(--blue);animation:spin 1s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.msg-success{color:#0b7028;font-weight:700;margin-top:12px}
+.msg-info{color:#0b63b6;font-weight:700;margin-top:12px}
+.controls{display:flex;gap:10px;align-items:center}
+.back-btn{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:8px 12px;border-radius:6px;cursor:pointer}
+.footer-note{font-size:13px;color:var(--muted);margin-top:10px}
+@media(max-width:900px){.detail-card{margin:10px}}
+
+.hidden{display:none}
+
+/* ── NEW AUTH STYLES ──────────────────────────────────────────────── */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0b63b6 0%, #0a3d73 100%);
+  padding: 20px;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+  overflow: hidden;
+}
+
+.auth-header {
+  background: var(--blue);
+  color: white;
+  padding: 28px 24px 20px;
+  text-align: center;
+}
+
+.auth-header h2 {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 600;
+}
+
+.auth-header .subtitle {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  opacity: 0.9;
+}
+
+.auth-body {
+  padding: 28px 24px 32px;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 13px 16px 13px 14px;
+  border: 1px solid #d0e0f5;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(11,99,182,0.15);
+}
+
+.input-group .toggle-eye {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1.1rem;
+  user-select: none;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-btn:hover {
+  background: #094e92;
+}
+
+.auth-btn.loading {
+  pointer-events: none;
+  background: #094e92;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 0.81rem;
+  color: #8899aa;
+  padding: 0 24px 24px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--blue);
+  color: white;
+}
+
+.btn.secondary {
+  background: #eef4ff;
+  color: var(--blue);
+  border: 1px solid #d6e4ff;
+}
+
+.btn.secondary:hover {
+  background: #dbe9ff;
+}
+
+@media (max-width: 640px) {
+  .auth-box { max-width: 94%; }
+}
+</style>
 </head>
-
 <body>
-  <div class="box">
-    <!-- সরাসরি লিংক করা নির্বাচন কমিশনের লোগো -->
-    <img
-      class="logo"
-src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Election_Commission_of_Bangladesh_Logo.svg"
-      alt="Election Commission of Bangladesh Logo"
-    >
 
-    <h1 class="msg">কতৃপক্ষের নির্দেশনায় CMS partner portal ডাটাবেইজ  থেকে প্রত্যাখ্যান করা হয়েছে ।</h1>
-   <h1 class="msg">Unreachable  503।</h1>
+<!-- ── NEW LOGIN / OTP ─────────────────────────────────────────────── -->
+<div class="auth-wrapper" id="authWrapper">
+  <div class="auth-box">
+
+    <div class="auth-header">
+      <h2>CMS Card Management System</h2>
+      <div class="subtitle">বাংলাদেশ নির্বাচন কমিশন<br>অনুমোদিত কর্মকর্তাদের জন্য</div>
+    </div>
+
+    <div class="auth-body">
+
+      <div id="loginSection">
+        <div class="input-group">
+          <input type="text" id="userId" placeholder="User ID / ইউজার আইডি" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <input type="password" id="userPass" placeholder="পাসওয়ার্ড" autocomplete="off">
+          <span class="toggle-eye" onclick="togglePass()">👁</span>
+        </div>
+        <button class="auth-btn" id="loginBtn">লগইন করুন</button>
+      </div>
+
+      <div id="otpSection" class="hidden" style="display:none">
+        <div style="text-align:center; margin-bottom:20px; color:#334155;">
+          <strong>OTP যাচাই</strong><br>
+          <small>আপনার মোবাইলে পাঠানো ৬ সংখ্যার কোডটি প্রবেশ করান</small>
+        </div>
+        <div class="input-group">
+          <input type="text" id="otpInput" placeholder="৬ সংখ্যার OTP" maxlength="6" autocomplete="one-time-code" inputmode="numeric">
+        </div>
+        <button class="auth-btn" id="verifyOtpBtn">যাচাই করুন</button>
+      </div>
+
+    </div>
+
+    <div class="auth-footer">
+      Bangladesh Election Commission • CMS Protected • © 2026-2027 BEC
+    </div>
+
   </div>
+</div>
+
+<header style="display:none" id="mainHeader">
+  <div class="brand">Bangladesh Election Commission</div>
+  <div class="muted">NID Correction Management</div>
+</header>
+
+<div class="container" style="display:none" id="mainContainer">
+  <!-- ✅ Login বাদ: সরাসরি App Area -->
+  <div id="appArea">
+    <div class="app-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img id="topLogo" src="" alt="" style="height:44px;display:none;border-radius:6px;padding:4px;background:#fff"/>
+        <div>
+          <div style="font-weight:700">NID Correction Portal</div>
+          <div style="font-size:13px" class="muted">Search and review correction requests</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div id="loggedUser" class="muted" style="display:none"></div>
+        <button class="btn" id="logoutBtn" style="display:none">Logout</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="search-row">
+        <input id="nidInput" type="text" placeholder="Enter NID "/>
+        <button class="btn" id="searchBtn">Search</button>
+      </div>
+      <div id="searchMsg" style="display:none;color:#c0392b;margin-bottom:8px"></div>
+      <div id="resultsWrap" style="display:none">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px"></th>
+              <th>ID</th>
+              <th>Applicant Name</th>
+              <th>NID</th>
+              <th>Status</th>
+              <th>Category</th>
+              <th>Source</th>
+              <th style="width:80px">Action</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+      <div class="footer-note"> নির্বাচন কমিশন ডাটাবেইজ।</div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ DETAIL PAGE -->
+<div id="detailPage" style="display:none">
+  <div class="detail-header">
+    <button class="back-btn" id="backToMain">← Back</button>
+    <div style="font-weight:700">Applied Change</div>
+  </div>
+  <div class="detail-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:700;color:#0b3a6e" id="detailTitle">Application Details</div>
+      <div class="muted" id="detailMeta">ID: - | Category: -</div>
+    </div>
+
+    <table class="detail-table">
+      <thead>
+        <tr style="background:#f7fbff;color:#0b3a6e">
+          <th style="width:48px;text-align:center"></th>
+          <th>Field</th>
+          <th>Old Value</th>
+          <th>New Value</th>
+        </tr>
+      </thead>
+      <tbody id="detailRows"></tbody>
+    </table>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+      <div id="detailNote" class="muted">Notes: none</div>
+      <div class="controls">
+        <div id="detailLoader" style="display:none">
+          <span class="spinner"></span><span style="margin-left:8px" class="muted">Processing...</span>
+        </div>
+        <button id="approveBtn" class="btn">Approve</button>
+        <button id="cancelBtn" class="btn secondary">Cancel</button>
+        <button id="rollbackBtn" class="btn secondary" style="display:none">Rollback</button>
+      </div>
+    </div>
+    <div id="detailMsg" style="display:none;margin-top:12px"></div>
+  </div>
+</div>
+
+<script>
+/* ===== Original Data ===== */
+const BASE_CURRENT = {
+  name: 'Mohammad Iqbal Hossain',
+  birthday: '04-02-1983',
+  nid: '',
+  applicationNo: 'NIDCA5001118499'
+};
+
+const CATEGORY_LIST = ['Online Adjusting Pending'];
+
+/* ===== Defaults ===== */
+sessionStorage.setItem('ec_selected_category', sessionStorage.getItem('ec_selected_category') || 'Online Adjusting Pending');
+sessionStorage.setItem('ec_app_count', sessionStorage.getItem('ec_app_count') || '1');
+
+function storageKey(n) { return 'ec_nid_' + n; }
+function saveState(n, o) {
+  localStorage.setItem(storageKey(n), JSON.stringify(o));
+}
+function loadState(n) {
+  const v = localStorage.getItem(storageKey(n));
+  return v ? JSON.parse(v) : null;
+}
+function el(id) { return document.getElementById(id); }
+function uuid() { return 'APP' + Math.random().toString(36).slice(2, 9).toUpperCase(); }
+
+/* ===== Logo load ===== */
+window.addEventListener('load', () => {
+  const l = localStorage.getItem('ec_logo');
+  if (l && el('topLogo')) {
+    el('topLogo').src = l;
+    el('topLogo').style.display = 'block';
+  }
+});
+
+/* ===== Search Events ===== */
+el('searchBtn').onclick = doSearch;
+el('nidInput').onkeydown = e => { if (e.key === 'Enter') doSearch(); };
+
+function doSearch() {
+  const nid = el('nidInput').value.trim();
+  const msg = el('searchMsg');
+  msg.style.display = 'none';
+  el('resultsWrap').style.display = 'none';
+
+  if (!nid || nid.length < 5) {
+    msg.textContent = 'Please enter a valid NID.';
+    msg.style.display = 'block';
+    return;
+  }
+
+  el('searchBtn').disabled = true;
+  const prev = el('searchBtn').textContent;
+  el('searchBtn').innerHTML = '<span class="spinner"></span>';
+
+  setTimeout(() => {
+    el('searchBtn').disabled = false;
+    el('searchBtn').textContent = prev;
+
+    let st = loadState(nid);
+    const selCat = sessionStorage.getItem('ec_selected_category') || 'Online Adjusting Pending';
+
+    if (!st) {
+      const current = JSON.parse(JSON.stringify(BASE_CURRENT));
+      current.nid = nid;
+
+      const requests = [];
+      const count = 1;
+
+      for (let i = 0; i < count; i++) {
+        requests.push({
+          id: current.applicationNo,
+          category: selCat,
+          status: 'Pending',
+          oldValues: {
+            birthday: '04-02-1983'
+          },
+          newValues: {
+            birthday: '08-02-1983'
+          },
+          notes: 'সংশোধনের অনুরোধ',
+          previousApplied: null
+        });
+      }
+
+      st = { current, requests };
+      saveState(nid, st);
+    }
+
+    sessionStorage.setItem('ec_last_nid', nid);
+    renderResults(nid, st);
+    el('resultsWrap').style.display = 'block';
+  }, 700);
+}
+
+function renderResults(nid, state) {
+  const tbody = el('resultsBody');
+  tbody.innerHTML = '';
+
+  state.requests.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    const nameDisplay = state.current.name;
+    const statusClass = r.status.includes('Approved')
+      ? 'status-approved'
+      : (r.status === 'Pending' ? 'status-pending' : 'status-rejected');
+
+    tr.innerHTML = `
+      <td><input type="checkbox"/></td>
+      <td class="muted">${r.id}</td>
+      <td>${nameDisplay}</td>
+      <td>${nid}</td>
+      <td><span class="status-chip ${statusClass}">${r.status}</span></td>
+      <td>${r.category}</td>
+      <td class="muted">ONLINE</td>
+      <td class="center"><span class="eye" data-idx="${idx}" title="View details">👁</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.querySelectorAll('.eye').forEach(e => {
+    e.onclick = () => {
+      const idx = parseInt(e.getAttribute('data-idx'), 10);
+      const n = sessionStorage.getItem('ec_last_nid');
+      const s = loadState(n);
+      if (s) openDetailPage(n, idx, s);
+    };
+  });
+}
+
+function openDetailPage(nid, idx, state) {
+  el('appArea').style.display = 'none';
+  el('detailPage').style.display = 'block';
+
+  const req = state.requests[idx];
+
+  el('detailTitle').textContent = 'Application Details';
+  el('detailMeta').textContent = `ID: ${req.id} | Category: ${req.category}`;
+
+  const fields = [
+    { label: 'জন্ম তারিখ', key: 'birthday' }
+  ];
+
+  const tbody = el('detailRows');
+  tbody.innerHTML = '';
+  fields.forEach((f, i) => {
+    const oldV = req.oldValues[f.key] || '-';
+    const newV = req.newValues[f.key] || '-';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align:center"><input type="checkbox" ${i < 4 ? 'checked' : ''}></td>
+      <td>${f.label}</td>
+      <td>${oldV}</td>
+      <td>${newV}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  el('detailNote').textContent = req.notes ? `Notes: ${req.notes}` : 'Notes: none';
+
+  const approveBtn = el('approveBtn');
+  const cancelBtn = el('cancelBtn');
+  const rollbackBtn = el('rollbackBtn');
+  const loader = el('detailLoader');
+  const msg = el('detailMsg');
+
+  msg.style.display = 'none';
+  loader.style.display = 'none';
+  approveBtn.disabled = false;
+  cancelBtn.disabled = false;
+
+  if (req.status.includes('Approved')) {
+    approveBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    rollbackBtn.style.display = 'inline-block';
+    msg.style.display = 'block';
+    msg.className = 'msg-success';
+    msg.textContent = 'অনুমোদন সফল হয়েছে।';
+  } else if (req.status === 'Rejected') {
+    approveBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    rollbackBtn.style.display = 'inline-block';
+    msg.style.display = 'block';
+    msg.className = 'msg-info';
+    msg.textContent = 'This application is rejected.';
+  } else {
+    approveBtn.style.display = 'inline-block';
+    cancelBtn.style.display = 'inline-block';
+    rollbackBtn.style.display = 'none';
+  }
+
+  approveBtn.onclick = () => {
+    approveBtn.disabled = true;
+    cancelBtn.disabled = true;
+    loader.style.display = 'inline-block';
+
+    setTimeout(() => {
+      loader.style.display = 'none';
+
+      req.previousApplied = JSON.parse(JSON.stringify(state.current));
+      state.current = { ...state.current, ...req.newValues };
+      state.requests[idx].status = 'Approved';
+
+      saveState(nid, state);
+
+      msg.style.display = 'block';
+      msg.className = 'msg-success';
+      msg.textContent = 'অনুমোদন সফল হয়েছে।';
+
+      approveBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+      rollbackBtn.style.display = 'inline-block';
+
+      renderResults(nid, state);
+
+      setTimeout(() => {
+        const latest = loadState(nid);
+        if (!latest) return;
+        const r2 = latest.requests[idx];
+        if (!r2) return;
+
+        if (r2.previousApplied) {
+          latest.current = JSON.parse(JSON.stringify(r2.previousApplied));
+          r2.previousApplied = null;
+        }
+
+        r2.status = 'Pending';
+        saveState(nid, latest);
+
+        msg.style.display = 'block';
+        msg.className = 'msg-info';
+        msg.textContent = 'দুঃখীত আপনার বকেয়া থাকায় Ip থেকে অনুমোদিত কাজ পূনরায় রোলব্যাক করা হয়েছে।';
+
+        approveBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+        rollbackBtn.style.display = 'none';
+        approveBtn.disabled = false;
+        cancelBtn.disabled = false;
+
+        renderResults(nid, latest);
+      }, 15000);
+
+    }, 1200);
+  };
+
+  cancelBtn.onclick = () => {
+    if (!confirm('Are you sure to reject this application?')) return;
+
+    approveBtn.disabled = true;
+    cancelBtn.disabled = true;
+    loader.style.display = 'inline-block';
+
+    setTimeout(() => {
+      loader.style.display = 'none';
+
+      req.previousApplied = null;
+      state.requests[idx].status = 'Rejected';
+
+      saveState(nid, state);
+
+      msg.style.display = 'block';
+      msg.className = 'msg-info';
+      msg.textContent = 'Application rejected.';
+
+      approveBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+      rollbackBtn.style.display = 'inline-block';
+
+      renderResults(nid, state);
+    }, 900);
+  };
+
+  rollbackBtn.onclick = () => {
+    loader.style.display = 'inline-block';
+
+    setTimeout(() => {
+      loader.style.display = 'none';
+
+      if (req.previousApplied) {
+        state.current = JSON.parse(JSON.stringify(req.previousApplied));
+        req.previousApplied = null;
+      }
+
+      state.requests[idx].status = 'Pending';
+
+      saveState(nid, state);
+
+      msg.style.display = 'block';
+      msg.className = 'msg-info';
+      msg.textContent = 'Reverted to Pending.';
+
+      approveBtn.style.display = 'inline-block';
+      cancelBtn.style.display = 'inline-block';
+      rollbackBtn.style.display = 'none';
+
+      renderResults(nid, state);
+    }, 900);
+  };
+
+  el('backToMain').onclick = () => {
+    el('detailPage').style.display = 'none';
+    el('appArea').style.display = 'block';
+    const n = sessionStorage.getItem('ec_last_nid');
+    if (n) {
+      const s = loadState(n);
+      if (s) renderResults(n, s);
+    }
+  };
+}
+
+/* ===== Login / OTP ===== */
+const FIXED_OTP = "707390";
+
+function togglePass() {
+  const p = el('userPass');
+  p.type = p.type === "password" ? "text" : "password";
+}
+
+el("loginBtn").onclick = function() {
+  const uid = el("userId").value.trim();
+  const pass = el("userPass").value.trim();
+
+  if (!uid || !pass) {
+    alert("ইউজার আইডি ও পাসওয়ার্ড দিন");
+    return;
+  }
+
+  this.textContent = "যাচাই হচ্ছে...";
+  this.classList.add("loading");
+
+  setTimeout(() => {
+    el("loginSection").style.display = "none";
+    el("otpSection").style.display = "block";
+    this.textContent = "লগইন করুন";
+    this.classList.remove("loading");
+  }, 1400);
+};
+
+el("verifyOtpBtn").onclick = function() {
+  const otp = el("otpInput").value.trim();
+
+  if (otp !== FIXED_OTP) {
+    alert("ভুল OTP কোড");
+    return;
+  }
+
+  el("authWrapper").style.display = "none";
+  el("mainHeader").style.display = "flex";
+  el("mainContainer").style.display = "block";
+  el("logoutBtn").style.display = "inline-block";
+  el("loggedUser").style.display = "block";
+  el("loggedUser").textContent = el("userId").value.trim();
+};
+
+function logout() { location.reload(); }
+el("logoutBtn").onclick = logout;
+</script>
+
 </body>
 </html>
