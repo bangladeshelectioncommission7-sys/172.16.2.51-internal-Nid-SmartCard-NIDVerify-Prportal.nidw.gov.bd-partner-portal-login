@@ -4,10 +4,10 @@
 
 1. Upload all files to GitHub.
 2. Import the repo into Vercel.
-3. 3. In Vercel Project Settings -> Environment Variables, add:
-   - `SMS_API_URL` = https://sms.one9.one/sms/api?action=send-sms
-   - `SMS_API_KEY` = your_actual_key_here (e.g. 585|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
-   - `OTP_SENDER_ID` = sms (optional, default is 'sms')
+3. In Vercel Project Settings -> Environment Variables, add:
+   - `SMS_API_URL`
+   - `OTP_SENDER_ID` (optional)
+4. Redeploy.
 
 ## Notes
 
