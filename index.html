@@ -35,9 +35,15 @@
         .msg-success{color:#0b7028;font-weight:700;margin-top:12px}
         .msg-info{color:#0b63b6;font-weight:700;margin-top:12px}
         .no-data{color:#c0392b; font-weight:600; margin:20px 0; text-align:center;}
-        .btn { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; transition: all 0.2s; background: var(--blue); color: white; }
-        .btn.secondary { background: #eef4ff; color: var(--blue); border: 1px solid #d6e4ff; }
-        .btn.secondary:hover { background: #dbe9ff; }
+        .btn { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .btn.cancel-btn {
+            background: #d32f2f;
+            color: white;
+            font-weight: 600;
+        }
+        .btn.cancel-btn:hover {
+            background: #b71c1c;
+        }
         .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0b63b6 0%, #0a3d73 100%); padding: 20px; }
         .auth-box { width: 100%; max-width: 420px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.28); overflow: hidden; }
         .auth-header { background: var(--blue); color: white; padding: 28px 24px 20px; text-align: center; }
@@ -178,7 +184,7 @@
                     <div id="detailLoader" style="display:none">
                         <span class="spinner"></span><span style="margin-left:8px" class="muted">Processing...</span>
                     </div>
-                    <button id="cancelBtn" class="btn secondary">বাতিল করুন</button>
+                    <button id="cancelBtn" class="btn cancel-btn">বাতিল করুন</button>
                 </div>
             </div>
             <div id="detailMsg" style="display:none;margin-top:12px"></div>
@@ -204,7 +210,7 @@
                     }
                 ]
             },
-            "5525126388": {
+            "1917369008": {
                 name: "নাদিয়া খাতুন",
                 applicationNo: "NIDCA21225871",
                 requests: [
@@ -248,9 +254,7 @@
         function getRealData(nid) {
             let entry = DATABASE[nid];
             if (!entry) return null;
-            if (entry.ref) {
-                return DATABASE[entry.ref];
-            }
+            if (entry.ref) return DATABASE[entry.ref];
             return entry;
         }
 
@@ -287,11 +291,17 @@
                 const tr = document.createElement('tr');
                 const statusClass = r.status === 'Pending' ? 'status-pending' :
                                    (r.status === 'Approved' ? 'status-approved' : 'status-rejected');
+                
+                // শুধু গোবিন্দর জন্য MAIN_NID দেখাবে, অন্যদের নিজস্ব NID
+                const displayNid = (searchedNid === MAIN_NID || searchedNid === "19718718655855031" || searchedNid === "8718655855031") 
+                                 ? MAIN_NID 
+                                 : searchedNid;
+
                 tr.innerHTML = `
                     <td><input type="checkbox"/></td>
                     <td class="muted">${r.id}</td>
                     <td>${data.name}</td>
-                    <td>${MAIN_NID}</td>
+                    <td>${displayNid}</td>
                     <td><span class="status-chip ${statusClass}">${r.status}</span></td>
                     <td>${r.category}</td>
                     <td class="muted">ONLINE</td>
