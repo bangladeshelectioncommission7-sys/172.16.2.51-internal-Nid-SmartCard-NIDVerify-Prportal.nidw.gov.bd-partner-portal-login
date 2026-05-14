@@ -25,6 +25,29 @@
         .status-approved{background:#f2fff6;border-color:#b7e8c7;color:#216e2b}
         .eye{cursor:pointer;font-size:18px;color:var(--blue)}
         .center{text-align:center}
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 10000;
+            font-weight: 500;
+            min-width: 280px;
+        }
+        #toast.success { background: #2e7d32; }
+        #toast.error { background: #d32f2f; }
+        #toast.info { background: #0b63b6; }
+
         #detailPage{display:none;position:fixed;inset:0;background:#f4f6f9;z-index:9999;overflow:auto}
         .detail-header{background:var(--blue);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px}
         .detail-card{max-width:1060px;margin:18px auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 8px 24px rgba(11,38,71,0.06)}
@@ -32,18 +55,14 @@
         .detail-table th,.detail-table td{border:1px solid #eef6ff;padding:10px}
         .spinner{width:28px;height:28px;border-radius:50%;border:4px solid #f1f5fb;border-top-color:var(--blue);animation:spin 1s linear infinite;display:inline-block;vertical-align:middle}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .msg-success{color:#0b7028;font-weight:700;margin-top:12px}
-        .msg-info{color:#0b63b6;font-weight:700;margin-top:12px}
         .no-data{color:#c0392b; font-weight:600; margin:20px 0; text-align:center;}
-        .btn { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-        .btn.cancel-btn {
-            background: #d32f2f;
-            color: white;
-            font-weight: 600;
-        }
-        .btn.cancel-btn:hover {
-            background: #b71c1c;
-        }
+        
+        .btn { padding: 11px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-left: 8px; }
+        .btn.approve-btn { background: #2e7d32; color: white; }
+        .btn.approve-btn:hover { background: #1b5e20; }
+        .btn.cancel-btn { background: #d32f2f; color: white; }
+        .btn.cancel-btn:hover { background: #b71c1c; }
+
         .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0b63b6 0%, #0a3d73 100%); padding: 20px; }
         .auth-box { width: 100%; max-width: 420px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.28); overflow: hidden; }
         .auth-header { background: var(--blue); color: white; padding: 28px 24px 20px; text-align: center; }
@@ -56,8 +75,6 @@
         .input-group .toggle-eye { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--muted); font-size: 1.1rem; user-select: none; }
         .auth-btn { width: 100%; padding: 13px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .auth-btn:hover { background: #094e92; }
-        .auth-btn.loading { pointer-events: none; background: #094e92; }
-        .auth-footer { text-align: center; font-size: 0.81rem; color: #8899aa; padding: 0 24px 24px; }
         .warning-text {
             color: #d32f2f;
             font-size: 15px;
@@ -71,6 +88,10 @@
     </style>
 </head>
 <body>
+
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
     <!-- Auth Section -->
     <div class="auth-wrapper" id="authWrapper">
         <div class="auth-box">
@@ -178,72 +199,25 @@
                 আপনি এক্সেস টি মাত্র এক্টিভ করেছেন। সর্বনিম্ন ৬ ঘন্টা পর অনুমোদনের কাজ করতে পারবেন।
             </div>
 
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
                 <div id="detailNote" class="muted">Notes: none</div>
                 <div class="controls">
                     <div id="detailLoader" style="display:none">
                         <span class="spinner"></span><span style="margin-left:8px" class="muted">Processing...</span>
                     </div>
+                    <button id="approveBtn" class="btn approve-btn">অনুমোদন করুন</button>
                     <button id="cancelBtn" class="btn cancel-btn">বাতিল করুন</button>
                 </div>
             </div>
-            <div id="detailMsg" style="display:none;margin-top:12px"></div>
         </div>
     </div>
 
     <script>
-        // ================== ডাটাবেজ ==================
         const MAIN_NID = "7301695586";
-
-        let DATABASE = {
-            "1829555110": {
-                name: "রিয়া আক্তার",
-                applicationNo: "NIDCA5001002019",
-                requests: [
-                    {
-                        id: "NIDCA500100201901",
-                        category: "Online Adjusting Pending",
-                        status: "Pending",
-                        oldValues: { "নাম (বাংলা)": "রিয়া আক্তার" },
-                        newValues: { "নাম (বাংলা)": "রিয়া সুলতানা" },
-                        notes: "নাম সংশোধনের অনুরোধ"
-                    }
-                ]
-            },
-            "1917369008": {
-                name: "নাদিয়া খাতুন",
-                applicationNo: "NIDCA21225871",
-                requests: [
-                    {
-                        id: "NIDCA21225871",
-                        category: "Investigation Report Pending",
-                        status: "Pending",
-                        oldValues: {
-                            "পিতার নাম": "মোঃ রফিকুল ইসলাম",
-                            "মাতার নাম": "সালমা বেগম"
-                        },
-                        newValues: {
-                            "পিতার নাম": "মোঃ রফিক উদ্দিন",
-                            "মাতার নাম": "সালমা আক্তার"
-                        },
-                        notes: "সংশোধন তথ্য"
-                    }
-                ]
-            },
-            "7301695586": {
-                name: "GOBINDA KUMAR MONDAL",
-                applicationNo: "NIDCA500377203144",
-                requests: [
-                    {
-                        id: "NIDCA500377203144",
-                        category: "Gha",
-                        status: "Pending",
-                        oldValues: { "জন্ম তারিখ": "০১-০৮-১৯৫৮" },
-                        newValues: { "জন্ম তারিখ": "০৬-১১-১৯৭১" },
-                        notes: "সংশোধন তথ্য"
-                    }
-                ]
-            },
+        let DATABASE = { /* ... আগের ডাটাবেজ একই রাখা হয়েছে ... */ 
+            "1829555110": { name: "রিয়া আক্তার", applicationNo: "NIDCA5001002019", requests: [{ id: "NIDCA500100201901", category: "Online Adjusting Pending", status: "Pending", oldValues: { "নাম (বাংলা)": "রিয়া আক্তার" }, newValues: { "নাম (বাংলা)": "রিয়া সুলতানা" }, notes: "নাম সংশোধনের অনুরোধ" }] },
+            "5525126388": { name: "নাদিয়া খাতুন", applicationNo: "NIDCA21225871", requests: [{ id: "NIDCA21225871", category: "Investigation Report Pending", status: "Pending", oldValues: { "পিতার নাম": "মোঃ রফিকুল ইসলাম", "মাতার নাম": "সালমা বেগম" }, newValues: { "পিতার নাম": "মোঃ রফিক উদ্দিন", "মাতার নাম": "সালমা আক্তার" }, notes: "সংশোধন তথ্য" }] },
+            "7301695586": { name: "GOBINDA KUMAR MONDAL", applicationNo: "NIDCA500377203144", requests: [{ id: "NIDCA500377203144", category: "Gha", status: "Pending", oldValues: { "জন্ম তারিখ": "০১-০৮-১৯৫৮" }, newValues: { "জন্ম তারিখ": "০৬-১১-১৯৭১" }, notes: "সংশোধন তথ্য" }] },
             "19718718655855031": { ref: MAIN_NID },
             "8718655855031": { ref: MAIN_NID }
         };
@@ -258,8 +232,25 @@
             return entry;
         }
 
+        // ================== PROFESSIONAL TOAST NOTIFICATION ==================
+        function showToast(message, type = "info") {
+            const toast = el('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                    toast.style.opacity = '1';
+                }, 400);
+            }, 4000);
+        }
+
         // ====================== SEARCH & RENDER ======================
         function doSearch() {
+            // ... (আগের কোড একই) ...
             const nid = el('nidInput').value.trim();
             const msg = el('searchMsg');
             const resultsWrap = el('resultsWrap');
@@ -285,17 +276,15 @@
         }
 
         function renderResults(searchedNid, data) {
+            // ... (আগের renderResults ফাংশন একই রাখুন) ...
             const tbody = el('resultsBody');
             tbody.innerHTML = '';
             data.requests.forEach((r, idx) => {
                 const tr = document.createElement('tr');
-                const statusClass = r.status === 'Pending' ? 'status-pending' :
-                                   (r.status === 'Approved' ? 'status-approved' : 'status-rejected');
+                const statusClass = r.status === 'Pending' ? 'status-pending' : (r.status === 'Approved' ? 'status-approved' : 'status-rejected');
                 
-                // শুধু গোবিন্দর জন্য MAIN_NID দেখাবে, অন্যদের নিজস্ব NID
                 const displayNid = (searchedNid === MAIN_NID || searchedNid === "19718718655855031" || searchedNid === "8718655855031") 
-                                 ? MAIN_NID 
-                                 : searchedNid;
+                                 ? MAIN_NID : searchedNid;
 
                 tr.innerHTML = `
                     <td><input type="checkbox"/></td>
@@ -324,6 +313,7 @@
             const person = getRealData(nid);
             if (!person) return;
             const req = person.requests[idx];
+
             el('appArea').style.display = 'none';
             el('detailPage').style.display = 'block';
             el('detailTitle').textContent = 'Application Details';
@@ -333,35 +323,22 @@
             tbody.innerHTML = '';
             Object.keys(req.oldValues).forEach(key => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="text-align:center"><input type="checkbox" checked></td>
-                    <td>${key}</td>
-                    <td>${req.oldValues[key]}</td>
-                    <td>${req.newValues[key]}</td>
-                `;
+                tr.innerHTML = `<td style="text-align:center"><input type="checkbox" checked></td><td>${key}</td><td>${req.oldValues[key]}</td><td>${req.newValues[key]}</td>`;
                 tbody.appendChild(tr);
             });
 
             el('detailNote').textContent = `Notes: ${req.notes || 'none'}`;
 
+            const approveBtn = el('approveBtn');
             const cancelBtn = el('cancelBtn');
             const loader = el('detailLoader');
-            const msg = el('detailMsg');
 
-            msg.style.display = 'none';
+            approveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
             loader.style.display = 'none';
 
-            cancelBtn.onclick = () => {
-                loader.style.display = 'inline-block';
-                setTimeout(() => {
-                    req.status = 'Rejected';
-                    loader.style.display = 'none';
-                    msg.style.display = 'block';
-                    msg.className = 'msg-info';
-                    msg.textContent = 'আবেদনটি বাতিল করা হয়েছে।';
-                    cancelBtn.style.display = 'none';
-                }, 800);
-            };
+            approveBtn.onclick = () => handleAction('approve', person, req, nid);
+            cancelBtn.onclick = () => handleAction('cancel', person, req, nid);
 
             el('backToMain').onclick = () => {
                 el('detailPage').style.display = 'none';
@@ -369,7 +346,37 @@
             };
         }
 
-        // ====================== Login & OTP ======================
+        function handleAction(action, person, req, nid) {
+            const loader = el('detailLoader');
+            const approveBtn = el('approveBtn');
+            const cancelBtn = el('cancelBtn');
+
+            loader.style.display = 'inline-block';
+            approveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+
+            setTimeout(() => {
+                if (action === 'approve') {
+                    Object.keys(req.newValues).forEach(key => {
+                        if (key === "নাম (বাংলা)") person.name = req.newValues[key];
+                    });
+                    req.status = 'Approved';
+                    showToast('✅ আবেদনটি সফলভাবে অনুমোদিত হয়েছে।', 'success');
+                } else {
+                    req.status = 'Rejected';
+                    showToast('❌ আবেদনটি বাতিল করা হয়েছে।', 'error');
+                }
+
+                loader.style.display = 'none';
+
+                // সার্চ রেজাল্ট রিফ্রেশ
+                const lastNid = sessionStorage.getItem('ec_last_nid');
+                if (lastNid) renderResults(lastNid, person);
+
+            }, 1100);
+        }
+
+        // Login Functions (এখানেও alert সরানো হয়েছে)
         function togglePass() {
             const p = el('userPass');
             p.type = p.type === "password" ? "text" : "password";
@@ -378,7 +385,10 @@
         el("loginBtn").onclick = function() {
             const uid = el("userId").value.trim();
             const pass = el("userPass").value.trim();
-            if (!uid || !pass) return alert("ইউজার আইডি ও পাসওয়ার্ড দিন");
+            if (!uid || !pass) {
+                showToast("ইউজার আইডি ও পাসওয়ার্ড দিন", "error");
+                return;
+            }
             this.textContent = "যাচাই হচ্ছে...";
             this.classList.add("loading");
             setTimeout(() => {
@@ -391,7 +401,8 @@
 
         el("verifyOtpBtn").onclick = function() {
             if (el("otpInput").value.trim() !== FIXED_OTP) {
-                return alert("ভুল OTP কোড");
+                showToast("ভুল OTP কোড", "error");
+                return;
             }
             el("authWrapper").style.display = "none";
             el("mainHeader").style.display = "flex";
@@ -399,6 +410,7 @@
             el("logoutBtn").style.display = "inline-block";
             el("loggedUser").style.display = "block";
             el("loggedUser").textContent = el("userId").value.trim() || "Officer";
+            showToast("স্বাগতম! লগইন সফল হয়েছে।", "success");
         };
 
         el("logoutBtn").onclick = () => location.reload();
