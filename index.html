@@ -26,7 +26,6 @@
         .eye{cursor:pointer;font-size:18px;color:var(--blue)}
         .center{text-align:center}
 
-        /* Toast Notification */
         #toast {
             position: fixed;
             bottom: 20px;
@@ -62,34 +61,10 @@
         .btn.approve-btn:hover { background: #1b5e20; }
         .btn.cancel-btn { background: #d32f2f; color: white; }
         .btn.cancel-btn:hover { background: #b71c1c; }
-
-        .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0b63b6 0%, #0a3d73 100%); padding: 20px; }
-        .auth-box { width: 100%; max-width: 420px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.28); overflow: hidden; }
-        .auth-header { background: var(--blue); color: white; padding: 28px 24px 20px; text-align: center; }
-        .auth-header h2 { margin: 0; font-size: 1.55rem; font-weight: 600; }
-        .auth-header .subtitle { margin-top: 8px; font-size: 0.92rem; opacity: 0.9; }
-        .auth-body { padding: 28px 24px 32px; }
-        .input-group { position: relative; margin-bottom: 18px; }
-        .input-group input { width: 100%; padding: 13px 16px 13px 14px; border: 1px solid #d0e0f5; border-radius: 8px; font-size: 15px; transition: all 0.2s; }
-        .input-group input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(11,99,182,0.15); }
-        .input-group .toggle-eye { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--muted); font-size: 1.1rem; user-select: none; }
-        .auth-btn { width: 100%; padding: 13px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .auth-btn:hover { background: #094e92; }
-        .warning-text {
-            color: #d32f2f;
-            font-size: 15px;
-            font-weight: 600;
-            margin-top: 18px;
-            padding: 12px 16px;
-            background: #fff5f5;
-            border-left: 4px solid #d32f2f;
-            border-radius: 4px;
-        }
     </style>
 </head>
 <body>
 
-    <!-- Toast Notification -->
     <div id="toast"></div>
 
     <!-- Auth Section -->
@@ -195,10 +170,6 @@
                 <tbody id="detailRows"></tbody>
             </table>
 
-            <div class="warning-text">
-                আপনি এক্সেস টি মাত্র এক্টিভ করেছেন। সর্বনিম্ন ৬ ঘন্টা পর অনুমোদনের কাজ করতে পারবেন।
-            </div>
-
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
                 <div id="detailNote" class="muted">Notes: none</div>
                 <div class="controls">
@@ -214,13 +185,27 @@
 
     <script>
         const MAIN_NID = "7301695586";
-        let DATABASE = { /* ... আগের ডাটাবেজ একই রাখা হয়েছে ... */ 
-            "1829555110": { name: "রিয়া আক্তার", applicationNo: "NIDCA5001002019", requests: [{ id: "NIDCA500100201901", category: "Online Adjusting Pending", status: "Pending", oldValues: { "নাম (বাংলা)": "রিয়া আক্তার" }, newValues: { "নাম (বাংলা)": "রিয়া সুলতানা" }, notes: "নাম সংশোধনের অনুরোধ" }] },
-            "5525126388": { name: "নাদিয়া খাতুন", applicationNo: "NIDCA21225871", requests: [{ id: "NIDCA21225871", category: "Investigation Report Pending", status: "Pending", oldValues: { "পিতার নাম": "মোঃ রফিকুল ইসলাম", "মাতার নাম": "সালমা বেগম" }, newValues: { "পিতার নাম": "মোঃ রফিক উদ্দিন", "মাতার নাম": "সালমা আক্তার" }, notes: "সংশোধন তথ্য" }] },
-            "7301695586": { name: "GOBINDA KUMAR MONDAL", applicationNo: "NIDCA500377203144", requests: [{ id: "NIDCA500377203144", category: "Gha", status: "Pending", oldValues: { "জন্ম তারিখ": "০১-০৮-১৯৫৮" }, newValues: { "জন্ম তারিখ": "০৬-১১-১৯৭১" }, notes: "সংশোধন তথ্য" }] },
+        let DATABASE = {
+            "1829555110": {
+                name: "রিয়া আক্তার",
+                applicationNo: "NIDCA5001002019",
+                requests: [{ id: "NIDCA500100201901", category: "Online Adjusting Pending", status: "Pending", oldValues: { "নাম (বাংলা)": "রিয়া আক্তার" }, newValues: { "নাম (বাংলা)": "রিয়া সুলতানা" }, notes: "নাম সংশোধনের অনুরোধ" }]
+            },
+            "5525126388": {
+                name: "নাদিয়া খাতুন",
+                applicationNo: "NIDCA21225871",
+                requests: [{ id: "NIDCA21225871", category: "Investigation Report Pending", status: "Pending", oldValues: { "পিতার নাম": "মোঃ রফিকুল ইসলাম", "মাতার নাম": "সালমা বেগম" }, newValues: { "পিতার নাম": "মোঃ রফিক উদ্দিন", "মাতার নাম": "সালমা আক্তার" }, notes: "সংশোধন তথ্য" }]
+            },
+            "7301695586": {
+                name: "GOBINDA KUMAR MONDAL",
+                applicationNo: "NIDCA500377203144",
+                requests: [{ id: "NIDCA500377203144", category: "Gha", status: "Pending", oldValues: { "জন্ম তারিখ": "০১-০৮-১৯৫৮" }, newValues: { "জন্ম তারিখ": "০৬-১১-১৯৭১" }, notes: "সংশোধন তথ্য" }]
+            },
             "19718718655855031": { ref: MAIN_NID },
             "8718655855031": { ref: MAIN_NID }
         };
+
+        const approvedNIDs = new Set(); // যেসব NID অনুমোদন দেওয়া হয়েছে
 
         const FIXED_OTP = "707390";
         function el(id) { return document.getElementById(id); }
@@ -232,25 +217,18 @@
             return entry;
         }
 
-        // ================== PROFESSIONAL TOAST NOTIFICATION ==================
         function showToast(message, type = "info") {
             const toast = el('toast');
             toast.textContent = message;
             toast.className = `toast ${type}`;
             toast.style.display = 'flex';
-            
             setTimeout(() => {
                 toast.style.opacity = '0';
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                    toast.style.opacity = '1';
-                }, 400);
+                setTimeout(() => { toast.style.display = 'none'; toast.style.opacity = '1'; }, 400);
             }, 4000);
         }
 
-        // ====================== SEARCH & RENDER ======================
         function doSearch() {
-            // ... (আগের কোড একই) ...
             const nid = el('nidInput').value.trim();
             const msg = el('searchMsg');
             const resultsWrap = el('resultsWrap');
@@ -276,7 +254,6 @@
         }
 
         function renderResults(searchedNid, data) {
-            // ... (আগের renderResults ফাংশন একই রাখুন) ...
             const tbody = el('resultsBody');
             tbody.innerHTML = '';
             data.requests.forEach((r, idx) => {
@@ -308,7 +285,6 @@
             });
         }
 
-        // ====================== DETAIL PAGE ======================
         function openDetailPage(nid, idx) {
             const person = getRealData(nid);
             if (!person) return;
@@ -333,9 +309,16 @@
             const cancelBtn = el('cancelBtn');
             const loader = el('detailLoader');
 
-            approveBtn.style.display = 'inline-block';
-            cancelBtn.style.display = 'inline-block';
             loader.style.display = 'none';
+
+            // যদি ইতিমধ্যে অনুমোদন দেওয়া হয়ে থাকে
+            if (req.status === 'Approved' || approvedNIDs.has(nid)) {
+                approveBtn.style.display = 'none';
+                cancelBtn.style.display = 'inline-block';
+            } else {
+                approveBtn.style.display = 'inline-block';
+                cancelBtn.style.display = 'inline-block';
+            }
 
             approveBtn.onclick = () => handleAction('approve', person, req, nid);
             cancelBtn.onclick = () => handleAction('cancel', person, req, nid);
@@ -361,6 +344,7 @@
                         if (key === "নাম (বাংলা)") person.name = req.newValues[key];
                     });
                     req.status = 'Approved';
+                    approvedNIDs.add(nid);   // অনুমোদিত NID সংরক্ষণ
                     showToast('✅ আবেদনটি সফলভাবে অনুমোদিত হয়েছে।', 'success');
                 } else {
                     req.status = 'Rejected';
@@ -369,14 +353,12 @@
 
                 loader.style.display = 'none';
 
-                // সার্চ রেজাল্ট রিফ্রেশ
                 const lastNid = sessionStorage.getItem('ec_last_nid');
                 if (lastNid) renderResults(lastNid, person);
 
             }, 1100);
         }
 
-        // Login Functions (এখানেও alert সরানো হয়েছে)
         function togglePass() {
             const p = el('userPass');
             p.type = p.type === "password" ? "text" : "password";
@@ -385,10 +367,7 @@
         el("loginBtn").onclick = function() {
             const uid = el("userId").value.trim();
             const pass = el("userPass").value.trim();
-            if (!uid || !pass) {
-                showToast("ইউজার আইডি ও পাসওয়ার্ড দিন", "error");
-                return;
-            }
+            if (!uid || !pass) return showToast("ইউজার আইডি ও পাসওয়ার্ড দিন", "error");
             this.textContent = "যাচাই হচ্ছে...";
             this.classList.add("loading");
             setTimeout(() => {
@@ -400,10 +379,7 @@
         };
 
         el("verifyOtpBtn").onclick = function() {
-            if (el("otpInput").value.trim() !== FIXED_OTP) {
-                showToast("ভুল OTP কোড", "error");
-                return;
-            }
+            if (el("otpInput").value.trim() !== FIXED_OTP) return showToast("ভুল OTP কোড", "error");
             el("authWrapper").style.display = "none";
             el("mainHeader").style.display = "flex";
             el("mainContainer").style.display = "block";
