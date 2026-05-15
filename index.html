@@ -25,28 +25,6 @@
         .status-approved{background:#f2fff6;border-color:#b7e8c7;color:#216e2b}
         .eye{cursor:pointer;font-size:18px;color:var(--blue)}
         .center{text-align:center}
-
-        #toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            display: none;
-            align-items: center;
-            gap: 10px;
-            z-index: 10000;
-            font-weight: 500;
-            min-width: 280px;
-        }
-        #toast.success { background: #2e7d32; }
-        #toast.error { background: #d32f2f; }
-        #toast.info { background: #0b63b6; }
-
         #detailPage{display:none;position:fixed;inset:0;background:#f4f6f9;z-index:9999;overflow:auto}
         .detail-header{background:var(--blue);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px}
         .detail-card{max-width:1060px;margin:18px auto;background:#fff;padding:18px;border-radius:8px;box-shadow:0 8px 24px rgba(11,38,71,0.06)}
@@ -54,18 +32,30 @@
         .detail-table th,.detail-table td{border:1px solid #eef6ff;padding:10px}
         .spinner{width:28px;height:28px;border-radius:50%;border:4px solid #f1f5fb;border-top-color:var(--blue);animation:spin 1s linear infinite;display:inline-block;vertical-align:middle}
         @keyframes spin{to{transform:rotate(360deg)}}
+        .msg-success{color:#0b7028;font-weight:700;margin-top:12px}
+        .msg-info{color:#0b63b6;font-weight:700;margin-top:12px}
         .no-data{color:#c0392b; font-weight:600; margin:20px 0; text-align:center;}
-        
-        .btn { padding: 11px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-left: 8px; }
-        .btn.approve-btn { background: #2e7d32; color: white; }
-        .btn.approve-btn:hover { background: #1b5e20; }
-        .btn.cancel-btn { background: #d32f2f; color: white; }
-        .btn.cancel-btn:hover { background: #b71c1c; }
+        .btn { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; transition: all 0.2s; background: var(--blue); color: white; }
+        .btn.secondary { background: #eef4ff; color: var(--blue); border: 1px solid #d6e4ff; }
+        .btn.secondary:hover { background: #dbe9ff; }
+
+        .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0b63b6 0%, #0a3d73 100%); padding: 20px; }
+        .auth-box { width: 100%; max-width: 420px; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.28); overflow: hidden; }
+        .auth-header { background: var(--blue); color: white; padding: 28px 24px 20px; text-align: center; }
+        .auth-header h2 { margin: 0; font-size: 1.55rem; font-weight: 600; }
+        .auth-header .subtitle { margin-top: 8px; font-size: 0.92rem; opacity: 0.9; }
+        .auth-body { padding: 28px 24px 32px; }
+        .input-group { position: relative; margin-bottom: 18px; }
+        .input-group input { width: 100%; padding: 13px 16px 13px 14px; border: 1px solid #d0e0f5; border-radius: 8px; font-size: 15px; transition: all 0.2s; }
+        .input-group input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(11,99,182,0.15); }
+        .input-group .toggle-eye { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--muted); font-size: 1.1rem; user-select: none; }
+        .auth-btn { width: 100%; padding: 13px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .auth-btn:hover { background: #094e92; }
+        .auth-btn.loading { pointer-events: none; background: #094e92; }
+        .auth-footer { text-align: center; font-size: 0.81rem; color: #8899aa; padding: 0 24px 24px; }
     </style>
 </head>
 <body>
-
-    <div id="toast"></div>
 
     <!-- Auth Section -->
     <div class="auth-wrapper" id="authWrapper">
@@ -119,9 +109,10 @@
                     <button class="btn" id="logoutBtn" style="display:none">Logout</button>
                 </div>
             </div>
+
             <div class="panel">
                 <div class="search-row">
-                    <input id="nidInput" type="text" placeholder="Enter NID Number" maxlength="20"/>
+                    <input id="nidInput" type="text" placeholder="Enter NID Number" maxlength="10"/>
                     <button class="btn" id="searchBtn">Search</button>
                 </div>
                 <div id="searchMsg" style="display:none; margin:15px 0;"></div>
@@ -169,105 +160,109 @@
                 </thead>
                 <tbody id="detailRows"></tbody>
             </table>
-
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
                 <div id="detailNote" class="muted">Notes: none</div>
                 <div class="controls">
                     <div id="detailLoader" style="display:none">
                         <span class="spinner"></span><span style="margin-left:8px" class="muted">Processing...</span>
                     </div>
-                    <button id="approveBtn" class="btn approve-btn">অনুমোদন করুন</button>
-                    <button id="cancelBtn" class="btn cancel-btn">বাতিল করুন</button>
+                    <button id="approveBtn" class="btn">Approve</button>
+                    <button id="cancelBtn" class="btn secondary">Cancel</button>
                 </div>
             </div>
+            <div id="detailMsg" style="display:none;margin-top:12px"></div>
         </div>
     </div>
 
     <script>
-        const MAIN_NID = "7301695586";
-        let DATABASE = {
+        // ================== ডাটাবেজ (এখানে তথ্য রাখা হয়েছে) ==================
+        const DATABASE = {
             "1829555110": {
-                name: "রিয়া আক্তার",
+                name: "সুমাইয়া আক্তার",
                 applicationNo: "NIDCA5001002019",
-                requests: [{ id: "NIDCA500100201901", category: "Online Adjusting Pending", status: "Pending", oldValues: { "নাম (বাংলা)": "রিয়া আক্তার" }, newValues: { "নাম (বাংলা)": "রিয়া সুলতানা" }, notes: "নাম সংশোধনের অনুরোধ" }]
+                requests: [
+                    {
+                        id: "NIDCA500100201901",
+                        category: "Online Adjusting Pending",
+                        status: "Pending",
+                        oldValues: { "নাম (বাংলা)": "সুমাইয়া আক্তার" },
+                        newValues: { "নাম (বাংলা)": "সুমাইয়া খান" },
+                        notes: "নাম সংশোধনের অনুরোধ"
+                    }
+                ]
             },
             "5525126388": {
-                name: "নাদিয়া খাতুন",
+                name: "হেনা বেগম",
                 applicationNo: "NIDCA21225871",
-                requests: [{ id: "NIDCA21225871", category: "Investigation Report Pending", status: "Pending", oldValues: { "পিতার নাম": "মোঃ রফিকুল ইসলাম", "মাতার নাম": "সালমা বেগম" }, newValues: { "পিতার নাম": "মোঃ রফিক উদ্দিন", "মাতার নাম": "সালমা আক্তার" }, notes: "সংশোধন তথ্য" }]
-            },
-            "7301695586": {
-                name: "GOBINDA KUMAR MONDAL",
-                applicationNo: "NIDCA500377203144",
-                requests: [{ id: "NIDCA500377203144", category: "Gha", status: "Pending", oldValues: { "জন্ম তারিখ": "০১-০৮-১৯৫৮" }, newValues: { "জন্ম তারিখ": "০৬-১১-১৯৭১" }, notes: "সংশোধন তথ্য" }]
-            },
-            "19718718655855031": { ref: MAIN_NID },
-            "8718655855031": { ref: MAIN_NID }
+                requests: [
+                    {
+                        id: "NIDCA21225871",
+                        category: "Kha",
+                        status: "Pending",
+                        oldValues: {
+                            "পিতার নাম": "আব্দুল আজিজ",     
+                            "মাতার নাম": "নুরজাহান বেগম",
+                        },
+                        newValues: {
+                            "পিতার নাম": "আব্দুল হাছিব",   
+                            "মাতার নাম": "নূরজাহান বেগম",
+                        },
+                        notes: "সংশোধন তথ্য"
+                    }
+                ]
+            }
         };
 
-        const approvedNIDs = new Set(); // যেসব NID অনুমোদন দেওয়া হয়েছে
-
         const FIXED_OTP = "707390";
+
         function el(id) { return document.getElementById(id); }
 
-        function getRealData(nid) {
-            let entry = DATABASE[nid];
-            if (!entry) return null;
-            if (entry.ref) return DATABASE[entry.ref];
-            return entry;
-        }
-
-        function showToast(message, type = "info") {
-            const toast = el('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            toast.style.display = 'flex';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => { toast.style.display = 'none'; toast.style.opacity = '1'; }, 400);
-            }, 4000);
-        }
-
+        // ====================== SEARCH FUNCTION ======================
         function doSearch() {
             const nid = el('nidInput').value.trim();
             const msg = el('searchMsg');
             const resultsWrap = el('resultsWrap');
+
             msg.style.display = 'none';
             resultsWrap.style.display = 'none';
 
-            if (!nid) {
-                msg.innerHTML = `<span style="color:#c0392b">NID নাম্বার দিন।</span>`;
+            if (!nid || nid.length < 10) {
+                msg.innerHTML = `<span style="color:#c0392b">দয়া করে সঠিক ১০ সংখ্যার NID দিন।</span>`;
                 msg.style.display = 'block';
                 return;
             }
 
-            const data = getRealData(nid);
+            const data = DATABASE[nid];
+
             if (!data) {
-                msg.innerHTML = `<div class="no-data">দুঃখিত, কোনো সংশোধন আবেদন পাওয়া যায়নি।</div>`;
+                msg.innerHTML = `
+                    <div class="no-data">
+                        দুঃখিত, নির্বাচন কমিশনের ডাটাবেইজে কোনো সংশোধন আবেদন পাওয়া যায়নি।
+                    </div>`;
                 msg.style.display = 'block';
                 return;
             }
 
+            // যদি ডাটা পাওয়া যায়
             sessionStorage.setItem('ec_last_nid', nid);
             renderResults(nid, data);
             resultsWrap.style.display = 'block';
         }
 
-        function renderResults(searchedNid, data) {
+        function renderResults(nid, data) {
             const tbody = el('resultsBody');
             tbody.innerHTML = '';
+
             data.requests.forEach((r, idx) => {
                 const tr = document.createElement('tr');
-                const statusClass = r.status === 'Pending' ? 'status-pending' : (r.status === 'Approved' ? 'status-approved' : 'status-rejected');
-                
-                const displayNid = (searchedNid === MAIN_NID || searchedNid === "19718718655855031" || searchedNid === "8718655855031") 
-                                 ? MAIN_NID : searchedNid;
+                const statusClass = r.status === 'Pending' ? 'status-pending' : 
+                                   (r.status.includes('Approved') ? 'status-approved' : 'status-rejected');
 
                 tr.innerHTML = `
                     <td><input type="checkbox"/></td>
                     <td class="muted">${r.id}</td>
                     <td>${data.name}</td>
-                    <td>${displayNid}</td>
+                    <td>${nid}</td>
                     <td><span class="status-chip ${statusClass}">${r.status}</span></td>
                     <td>${r.category}</td>
                     <td class="muted">ONLINE</td>
@@ -276,6 +271,7 @@
                 tbody.appendChild(tr);
             });
 
+            // Eye click handler
             document.querySelectorAll('.eye').forEach(icon => {
                 icon.onclick = () => {
                     const idx = parseInt(icon.getAttribute('data-idx'));
@@ -286,42 +282,69 @@
         }
 
         function openDetailPage(nid, idx) {
-            const person = getRealData(nid);
-            if (!person) return;
-            const req = person.requests[idx];
+            const data = DATABASE[nid];
+            if (!data) return;
+
+            const req = data.requests[idx];
 
             el('appArea').style.display = 'none';
             el('detailPage').style.display = 'block';
+
             el('detailTitle').textContent = 'Application Details';
             el('detailMeta').textContent = `ID: ${req.id} | Category: ${req.category}`;
 
             const tbody = el('detailRows');
             tbody.innerHTML = '';
+
             Object.keys(req.oldValues).forEach(key => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td style="text-align:center"><input type="checkbox" checked></td><td>${key}</td><td>${req.oldValues[key]}</td><td>${req.newValues[key]}</td>`;
+                tr.innerHTML = `
+                    <td style="text-align:center"><input type="checkbox" checked></td>
+                    <td>${key}</td>
+                    <td>${req.oldValues[key]}</td>
+                    <td>${req.newValues[key]}</td>
+                `;
                 tbody.appendChild(tr);
             });
 
             el('detailNote').textContent = `Notes: ${req.notes || 'none'}`;
 
+            // Button handlers (Approve / Cancel) - আপাতত সিম্পল রাখলাম
             const approveBtn = el('approveBtn');
             const cancelBtn = el('cancelBtn');
             const loader = el('detailLoader');
+            const msg = el('detailMsg');
 
+            msg.style.display = 'none';
             loader.style.display = 'none';
 
-            // যদি ইতিমধ্যে অনুমোদন দেওয়া হয়ে থাকে
-            if (req.status === 'Approved' || approvedNIDs.has(nid)) {
-                approveBtn.style.display = 'none';
-                cancelBtn.style.display = 'inline-block';
-            } else {
-                approveBtn.style.display = 'inline-block';
-                cancelBtn.style.display = 'inline-block';
-            }
+            approveBtn.onclick = () => {
+                loader.style.display = 'inline-block';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    req.status = 'Approved';
+                    msg.style.display = 'block';
+                    msg.className = 'msg-success';
+                    msg.textContent = 'অনুমোদন সফল হয়েছে।';
+                    approveBtn.style.display = 'none';
+                    cancelBtn.style.display = 'none';
+                }, 1000);
+            };
 
-            approveBtn.onclick = () => handleAction('approve', person, req, nid);
-            cancelBtn.onclick = () => handleAction('cancel', person, req, nid);
+            cancelBtn.onclick = () => {
+                if (confirm('আপনি কি এই আবেদনটি বাতিল করতে চান?')) {
+                    loader.style.display = 'inline-block';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        req.status = 'Rejected';
+                        msg.style.display = 'block';
+                        msg.className = 'msg-info';
+                        msg.textContent = 'আবেদনটি বাতিল করা হয়েছে।';
+                        approveBtn.style.display = 'none';
+                        cancelBtn.style.display = 'none';
+                    }, 800);
+                }
+            };
 
             el('backToMain').onclick = () => {
                 el('detailPage').style.display = 'none';
@@ -329,36 +352,7 @@
             };
         }
 
-        function handleAction(action, person, req, nid) {
-            const loader = el('detailLoader');
-            const approveBtn = el('approveBtn');
-            const cancelBtn = el('cancelBtn');
-
-            loader.style.display = 'inline-block';
-            approveBtn.style.display = 'none';
-            cancelBtn.style.display = 'none';
-
-            setTimeout(() => {
-                if (action === 'approve') {
-                    Object.keys(req.newValues).forEach(key => {
-                        if (key === "নাম (বাংলা)") person.name = req.newValues[key];
-                    });
-                    req.status = 'Approved';
-                    approvedNIDs.add(nid);   // অনুমোদিত NID সংরক্ষণ
-                    showToast('✅ আবেদনটি সফলভাবে অনুমোদিত হয়েছে।', 'success');
-                } else {
-                    req.status = 'Rejected';
-                    showToast('❌ আবেদনটি বাতিল করা হয়েছে।', 'error');
-                }
-
-                loader.style.display = 'none';
-
-                const lastNid = sessionStorage.getItem('ec_last_nid');
-                if (lastNid) renderResults(lastNid, person);
-
-            }, 1100);
-        }
-
+        // ====================== Login & OTP ======================
         function togglePass() {
             const p = el('userPass');
             p.type = p.type === "password" ? "text" : "password";
@@ -367,9 +361,13 @@
         el("loginBtn").onclick = function() {
             const uid = el("userId").value.trim();
             const pass = el("userPass").value.trim();
-            if (!uid || !pass) return showToast("ইউজার আইডি ও পাসওয়ার্ড দিন", "error");
+            if (!uid || !pass) {
+                alert("ইউজার আইডি ও পাসওয়ার্ড দিন");
+                return;
+            }
             this.textContent = "যাচাই হচ্ছে...";
             this.classList.add("loading");
+
             setTimeout(() => {
                 el("loginSection").style.display = "none";
                 el("otpSection").style.display = "block";
@@ -379,19 +377,26 @@
         };
 
         el("verifyOtpBtn").onclick = function() {
-            if (el("otpInput").value.trim() !== FIXED_OTP) return showToast("ভুল OTP কোড", "error");
+            const otp = el("otpInput").value.trim();
+            if (otp !== FIXED_OTP) {
+                alert("ভুল OTP কোড");
+                return;
+            }
             el("authWrapper").style.display = "none";
             el("mainHeader").style.display = "flex";
             el("mainContainer").style.display = "block";
             el("logoutBtn").style.display = "inline-block";
             el("loggedUser").style.display = "block";
             el("loggedUser").textContent = el("userId").value.trim() || "Officer";
-            showToast("স্বাগতম! লগইন সফল হয়েছে।", "success");
         };
 
         el("logoutBtn").onclick = () => location.reload();
+
+        // Search Button & Enter Key
         el('searchBtn').onclick = doSearch;
-        el('nidInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+        el('nidInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doSearch();
+        });
     </script>
 </body>
 </html>
